@@ -19,6 +19,8 @@ I also didnt have time to get DRY going properly, by having set functions and ca
 
 Thanks for looking through my challenge and assessing it.
 
+With the Flask analysis, I have actually separated the different analyses into different routes, more for my own clarity and not to ruin previous working code as I approached the next problem.
+
 
 
 # ordering sqlalchemy by DESC

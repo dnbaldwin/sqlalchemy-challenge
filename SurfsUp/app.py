@@ -173,12 +173,64 @@ def mostActiveStation():
 
 @app.route("/api/v1.0/tobs_DateRange/<start_date>/<end_date>")
 def DateRange(start_date, end_date):
+
+    # get the most active station
+
+    session = Session(engine)
+
+    response = session.query(Measurement.station, func.count(Measurement.station).label("station_count")).\
+        group_by(Measurement.station).\
+        order_by(desc("station_count")).\
+        all()
+
+    session.close()
+
+    activeStations_list = []
+
+    # get list of station activity, in descending order
+
+    for station, station_count in response:
+        activeStations_dict = {}
+        activeStations_dict["station"] = station
+        activeStations_dict["station_count"] = station_count
+        activeStations_list.append(activeStations_dict)
+
+    # use the most active station
+
+    mostActiveStation = activeStations_list[0]['station']
+
     print(start_date)
     print(end_date)
 
-    return '{} {}'.format(start_date, end_date)
+    # query dates and temps for most active station
+    session = Session(engine)
 
-    r  # eturn (start_date, end_date)
+    response = session.query(Measurement.station, Measurement.date, Measurement.tobs).\
+        filter(Measurement.station == mostActiveStation).\
+        filter(Measurement.date >= start_date).\
+        filter(Measurement.date <= end_date).\
+        all()
+
+    session.close()
+
+    dateRange_list = []
+
+    # get list of station activity, in descending order
+
+    for station, date, tobs in response:
+        dateRange_dict = {}
+        dateRange_dict["station"] = station
+        dateRange_dict["date"] = date
+        dateRange_dict["tobs"] = tobs
+        dateRange_list.append(dateRange_dict)
+
+    return jsonify(dateRange_list)
+
+    #t_min = dateRange_list["tobs"].min()
+    #t_max = dateRange_list["tobs"].max()
+    #t_mean = dateRange_list["tobs"].mean()
+    
+    #return '{} {} {}'.format(t_min, t_max, t_mean)
 
 
 if __name__ == '__main__':
